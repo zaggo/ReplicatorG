@@ -32,7 +32,10 @@ public enum ToolCommandCode {
 	GET_PLATFORM_TEMP(30),
 	SET_PLATFORM_TEMP(31),
 	GET_SP(32),
-	GET_PLATFORM_SP(33);
+	GET_PLATFORM_SP(33),
+	
+	ENGAGE_Z_PROBE(128),
+	SET_Z_PROBE(129);
 	
 	private int code;
 	private ToolCommandCode(int code) {

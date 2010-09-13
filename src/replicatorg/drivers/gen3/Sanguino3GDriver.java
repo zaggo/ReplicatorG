@@ -958,6 +958,53 @@ public class Sanguino3GDriver extends SerialDriver
 		super.closeCollet();
 	}
 
+
+	/***************************************************************************
+	 * Z-Probe interface functions
+	 **************************************************************************/
+
+	public void engageZProbe() {
+		Base.logger.log(Level.FINE,"Engaging Z-Probe");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.ENGAGE_Z_PROBE.getCode());
+		pb.add8((byte) 1); // payload length
+		pb.add8((byte) 1); // engage
+		runCommand(pb.getPacket());
+
+		super.engageZProbe();
+	}
+
+	public void disengageZProbe() {
+		Base.logger.log(Level.FINE,"Disengaging Z-Probe");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.ENGAGE_Z_PROBE.getCode());
+		pb.add8((byte) 1); // payload length
+		pb.add8((byte) 0); // engage
+		runCommand(pb.getPacket());
+
+		super.disengageZProbe();
+	}
+
+	public void setZProbeAngle(int angle) {
+		Base.logger.log(Level.FINE,"Setting Z-Probe to " + angle + " degrees");
+
+		// send it!
+		PacketBuilder pb = new PacketBuilder(MotherboardCommandCode.TOOL_COMMAND.getCode());
+		pb.add8((byte) machine.currentTool().getIndex());
+		pb.add8(ToolCommandCode.SET_Z_PROBE.getCode());
+		pb.add8((byte) 1); // length of payload.
+		pb.add8((byte) angle);
+		runCommand(pb.getPacket());
+
+		super.setZProbeAngle(angle);
+	}
+
 	/***************************************************************************
 	 * Pause/unpause functionality for asynchronous devices
 	 **************************************************************************/
@@ -1455,6 +1502,18 @@ public class Sanguino3GDriver extends SerialDriver
 		final static int D_TERM = 0x0010;
 	};
 
+	final static class ZProbeOffsets {
+		final static int Z_PROBE_DISENGAGE_ANGLE = 0x0018;
+		final static int Z_PROBE_ENGAGE_ANGLE = 0x0019;
+	};
+
+	private int read8FromToolEEPROM(int offset, int defaultValue) {
+		byte r[] = readFromToolEEPROM(offset,1);
+		int val = ((int)r[0])&0xff;
+		if (val == 0x0ff) return defaultValue;
+		return val;
+	}
+
 	private int read16FromToolEEPROM(int offset, int defaultValue) {
 		byte r[] = readFromToolEEPROM(offset,2);
 		int val = ((int)r[0])&0xff;
@@ -1499,6 +1558,20 @@ public class Sanguino3GDriver extends SerialDriver
 		writeToToolEEPROM(PIDOffsets.P_TERM,floatToLE(pp.p));
 		writeToToolEEPROM(PIDOffsets.I_TERM,floatToLE(pp.i));
 		writeToToolEEPROM(PIDOffsets.D_TERM,floatToLE(pp.d));
+	}
+
+	public ZProbeParameters getZProbeParameters() {
+		ZProbeParameters zp = new ZProbeParameters();
+
+		zp.disengagedAngle = read8FromToolEEPROM(ZProbeOffsets.Z_PROBE_DISENGAGE_ANGLE, 5);
+		zp.engagedAngle = read8FromToolEEPROM(ZProbeOffsets.Z_PROBE_ENGAGE_ANGLE, 26);
+		
+		return zp;
+	}
+	
+	public void setZProbeParameters(ZProbeParameters zp) {
+		writeToToolEEPROM(ZProbeOffsets.Z_PROBE_DISENGAGE_ANGLE,intToLE(zp.disengagedAngle,1));
+		writeToToolEEPROM(ZProbeOffsets.Z_PROBE_ENGAGE_ANGLE,intToLE(zp.engagedAngle,1));
 	}
 
 	/** Reset to the factory state.  This ordinarily means writing 0xff over the

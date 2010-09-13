@@ -382,6 +382,23 @@ public class ExtruderPanel extends JPanel implements FocusListener, ActionListen
 			add(colletLabel);
 			add(colletCheck,"wrap");
 		}
+
+		// our ZProbe fields
+		if (t.hasZProbe()) {
+			JLabel zProbeEngagedLabel = new JLabel("Z-Probe");
+			zProbeEngagedLabel.setMinimumSize(labelMinimumSize);
+			zProbeEngagedLabel.setMaximumSize(labelMinimumSize);
+			zProbeEngagedLabel.setPreferredSize(labelMinimumSize);
+			zProbeEngagedLabel.setHorizontalAlignment(JLabel.LEFT);
+
+			JCheckBox zProbeCheck = new JCheckBox("engage");
+			zProbeCheck.setName("zprobe-check");
+			zProbeCheck.addItemListener(this);
+
+			add(zProbeEngagedLabel);
+			add(zProbeCheck,"wrap");
+		}
+
 	}
 
 	private Element findMappingNode(Node xml,String portName) {
@@ -471,6 +488,8 @@ public class ExtruderPanel extends JPanel implements FocusListener, ActionListen
 				driver.openValve();
 			else if (name.equals("collet-check"))
 				driver.openCollet();
+			else if (name.equals("zprobe-check"))
+				driver.engageZProbe();
 			else
 				Base.logger.warning("checkbox selected: " + source.getName());
 		} else {
@@ -488,6 +507,8 @@ public class ExtruderPanel extends JPanel implements FocusListener, ActionListen
 				driver.closeValve();
 			else if (name.equals("collet-check"))
 				driver.closeCollet();
+			else if (name.equals("zprobe-check"))
+				driver.disengageZProbe();
 			// else
 			// System.out.println("checkbox deselected: " + source.getName());
 		}

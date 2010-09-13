@@ -60,10 +60,18 @@ public interface OnboardParameters {
 		public float i;
 		public float d;
 	}
-	
+		
 	PIDParameters getPIDParameters();
 	void setPIDParameters(PIDParameters params);
 	
+	class ZProbeParameters {
+		public int disengagedAngle;
+		public int engagedAngle;
+	}
+
+	ZProbeParameters getZProbeParameters();
+	void setZProbeParameters(ZProbeParameters params);
+
 	/** Reset the onboard parameters to the factory settings. */ 
 	void resetToFactory();
 }

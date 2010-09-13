@@ -1,3 +1,7 @@
+0019 ReplicatorG
+New features:
+* Support for Z-Probe
+
 0018 ReplicatorG
 New features:
 * Model can now be manipulated and saved

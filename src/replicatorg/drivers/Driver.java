@@ -298,6 +298,13 @@ public interface Driver {
 	public void closeCollet();
 
 	/***************************************************************************
+	 * Z-Probe interface functions
+	 **************************************************************************/
+	public void engageZProbe();
+	public void disengageZProbe();
+	public void setZProbeAngle(int angle);
+
+	/***************************************************************************
 	 * Pause/unpause functionality for asynchronous devices
 	 **************************************************************************/
 	public void pause();

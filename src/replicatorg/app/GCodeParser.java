@@ -531,6 +531,7 @@ public class GCodeParser {
 			// set build chamber temperature
 			case 110:
 				driver.setChamberTemperature(getCodeValue("S"));
+				break;
 				
 			// valve open
 			case 126:
@@ -555,6 +556,19 @@ public class GCodeParser {
 			// you must know your limits
 			case 130:
 				// driver.setRange();
+				break;
+
+			// ZProbe
+			case 140: // Adjusting Z-Probe Angle
+				driver.engageZProbe();
+				break;
+			case 141: // Adjusting Z-Probe Angle
+				driver.disengageZProbe();
+				break;
+			case 142: // Adjusting Z-Probe Angle
+				if (hasCode("S"))
+					driver.setZProbeAngle((int) Math
+									.round(getCodeValue("S")));
 				break;
 
 			// initialize to default state.

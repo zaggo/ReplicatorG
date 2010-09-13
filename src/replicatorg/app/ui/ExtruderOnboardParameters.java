@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusListener;
+import java.awt.event.FocusEvent;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 import replicatorg.drivers.OnboardParameters;
+import replicatorg.drivers.Driver;
 
 public class ExtruderOnboardParameters extends JFrame {
 	private static final long serialVersionUID = 6353987389397209816L;
@@ -164,6 +167,74 @@ public class ExtruderOnboardParameters extends JFrame {
 	
 	PIDPanel pidPanel;
 
+	private class ZProbePanel extends JPanel {
+		private JTextField disengagedField = new JTextField();
+		private JTextField engagedField = new JTextField();
+		ZProbePanel() {
+			setLayout(new MigLayout());
+			setBorder(BorderFactory.createTitledBorder("Z-Probe parameters"));
+			add(new JLabel("<html>These parameters determine the behavior of the Z-Probe " +
+					"that is used to home the z axis.</html>"),
+					"span");
+			final int FIELD_WIDTH = 20;
+			disengagedField.setColumns(FIELD_WIDTH);
+			engagedField.setColumns(FIELD_WIDTH);
+
+			add(new JLabel("Disengaged Angle"));
+			add(disengagedField,"wrap");
+			add(new JLabel("Engaged Angle"));
+			add(engagedField,"wrap");
+			
+			if(target instanceof Driver)
+			{
+				add(new JLabel("<html>You can check Z-Probe angles by entering them into the following trial field. Entries in the trial field are not saved!</html>"),
+						"span");
+				add(new JLabel("Angle trial"));
+				JTextField angleTrial = new JTextField();
+				angleTrial.setColumns(FIELD_WIDTH);
+				add(angleTrial,"wrap");
+				angleTrial.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						JTextField source = (JTextField) e.getSource();
+						((Driver)target).setZProbeAngle(Integer.parseInt(source.getText()));
+						source.selectAll();
+					}
+				});
+				angleTrial.addFocusListener(new FocusListener() {
+					public void focusGained(FocusEvent e) {
+					}
+				
+					public void focusLost(FocusEvent e) {
+						JTextField source = (JTextField) e.getSource();
+						((Driver)target).setZProbeAngle(Integer.parseInt(source.getText()));
+						source.selectAll();
+					}
+				});
+			}
+			OnboardParameters.ZProbeParameters zp = target.getZProbeParameters();
+			disengagedField.setText(Integer.toString(zp.disengagedAngle));
+			engagedField.setText(Integer.toString(zp.engagedAngle));
+		}
+
+		public void commit() {
+			OnboardParameters.ZProbeParameters zp = new OnboardParameters.ZProbeParameters();
+			zp.disengagedAngle = Integer.parseInt(disengagedField.getText());
+			if(zp.disengagedAngle<0)
+				zp.disengagedAngle = 0;
+			else if(zp.disengagedAngle>180)
+				zp.disengagedAngle = 180;
+				
+			zp.engagedAngle = Integer.parseInt(engagedField.getText());
+			if(zp.engagedAngle<0)
+				zp.engagedAngle = 0;
+			else if(zp.engagedAngle>180)
+				zp.engagedAngle = 180;
+			target.setZProbeParameters(zp);
+		}
+	}
+	
+	ZProbePanel zprobePanel;
+
 	private JPanel makeButtonPanel() {
 		JPanel panel = new JPanel(new MigLayout());
 		JButton commitButton = new JButton("Commit Changes");
@@ -201,6 +272,8 @@ public class ExtruderOnboardParameters extends JFrame {
 		panel.add(backoffPanel);
 		pidPanel = new PIDPanel();
 		panel.add(pidPanel);
+		zprobePanel = new ZProbePanel();
+		panel.add(zprobePanel);
 		panel.add(makeButtonPanel());
 		add(panel);
 		pack();

@@ -78,6 +78,10 @@ public class ToolModel
 	protected boolean valveOpen;
 	protected boolean colletOpen;
 	
+	// Z-Probe
+	protected int zprobeAngle;
+	protected boolean zprobeEngaged;
+	
 	//capabilities
 	protected boolean hasMotor = false;
 	protected boolean hasSpindle = false;
@@ -88,6 +92,7 @@ public class ToolModel
 	protected boolean hasFan = false;
 	protected boolean hasValve = false;
 	protected boolean hasCollet = false;
+	protected boolean hasZProbe = false;
 
 	/*************************************
 	*  Creates the model object.
@@ -234,6 +239,12 @@ public class ToolModel
 				hasHeatedPlatform = true;
 		} catch (Exception e) {} //ignore boolean/integer parse errors
 
+		n = XML.getAttributeValue(xml, "zprobe");
+		try {
+			if (Boolean.parseBoolean(n) || Integer.parseInt(n) == 1)
+				hasZProbe = true;
+		} catch (Exception e) {} //ignore boolean/integer parse errors
+
 		//hah, all this for a debug string... lol.
 		String result = "Loading " + type + " '" + name + "': ";
 		result += "material: " + material + ", ";
@@ -256,6 +267,8 @@ public class ToolModel
 			result += "heater, ";
 		if (hasHeatedPlatform)
 			result += "hasHeatedPlatform, ";
+		if (hasZProbe)
+			result += "hasZProbe, ";
 		//System.out.println(result);
 	}
 	
@@ -613,6 +626,39 @@ public class ToolModel
 	public boolean hasCollet()
 	{
 		return hasCollet;
+	}
+	
+	/*************************************
+	*  ZProbe interface functions
+	*************************************/
+	public boolean hasZProbe()
+	{
+		return hasZProbe;
+	}
+	
+	public void setZProbeAngle(int angle)
+	{
+		zprobeAngle = angle;
+	}
+	
+	public int getZProbeAngle()
+	{
+		return zprobeAngle;
+	}
+
+	public boolean isZProbeEngaged()
+	{
+		return zprobeEngaged;
+	}
+	
+	public void engageZProbe()
+	{
+		zprobeEngaged = true;
+	}
+	
+	public void disengageZProbe()
+	{
+		zprobeEngaged = false;
 	}
 	
 	/**

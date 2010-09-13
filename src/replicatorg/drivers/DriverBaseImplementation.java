@@ -539,6 +539,23 @@ public class DriverBaseImplementation implements Driver {
 		machine.currentTool().closeCollet();
 	}
 
+
+	/***************************************************************************
+	 * Z-Probe interface functions
+	 **************************************************************************/
+
+	public void engageZProbe() {
+		machine.currentTool().engageZProbe();
+	}
+
+	public void disengageZProbe(){
+		machine.currentTool().disengageZProbe();
+	}
+
+	public void setZProbeAngle(int angle) {
+		machine.currentTool().setZProbeAngle(angle);
+	}
+
 	/***************************************************************************
 	 * Pause/unpause functionality for asynchronous devices
 	 **************************************************************************/
